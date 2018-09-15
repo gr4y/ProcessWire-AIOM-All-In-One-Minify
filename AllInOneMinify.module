@@ -165,7 +165,7 @@ class AllInOneMinify extends WireData implements Module, ConfigurableModule {
         $field->columnWidth = 25;
         $field->value       = (isset($data['development_mode'])) ? $data['development_mode'] : 0;
         $field->checked     = ($field->value == 1) ? 'checked' : '';
-        $field->description = __('Enable development mode to prevent caching by the browser and not to minimize the files.');
+        $field->description = __('Enable development mode to prevent caching by the browser, to generate a SourceMap file and not to minimize the files.');
         $fields->add($field); 
 
         // ------------------------------------------------------------------------
@@ -602,9 +602,14 @@ class AllInOneMinify extends WireData implements Module, ConfigurableModule {
                 if($stylesheet['file_extension'] === 'less') {
                     try {
                         $_less_parser   = new Less_Parser();
+                        // ------------------------------------------------------------------------
+                        // In Development Mode a SourceMap will generated
+                        // ------------------------------------------------------------------------
+                        $_less_parser->SetOptions([
+                            'sourceMap' => self::$developmentMode, 
+                        ]);
                         $_less_parser->parse($_css_src);
                         $_css_src       = $_less_parser->getCss();
-
                     } catch(Exception $error) {
                         $_css_src       = '#_____LESS_____ERROR_____REPORT_____ {content:"'.$error->getMessage().'"}';
                     }
